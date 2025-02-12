@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>連打速度測定</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+
+        #container {
+            text-align: center;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+
+        #result, #progress {
+            margin-top: 20px;
+            font-size: 24px;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h1>連打速度測定</h1>
+        <button id="startButton">開始</button>
+        <button id="clickButton" disabled>連打!</button>
+        <p id="progress">途中経過: 0 回, 残り時間: 15.000 秒</p>
+        <p id="result">結果: 0 回</p>
+        <p id="cps">CPS: 0.000</p>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const startButton = document.getElementById('startButton');
+            const clickButton = document.getElementById('clickButton');
+            const result = document.getElementById('result');
+            const progress = document.getElementById('progress');
+            const cpsDisplay = document.getElementById('cps');
+
+            let clickCount = 0;
+            let timer;
+            const totalTime = 15.000; // 15秒間の計測
+            let startTime;
+
+            startButton.addEventListener('click', () => {
+                clickCount = 0;
+                startTime = Date.now();
+                result.textContent = '結果: 0 回';
+                progress.textContent = `途中経過: 0 回, 残り時間: ${totalTime.toFixed(3)} 秒`;
+                cpsDisplay.textContent = 'CPS: 0.000';
+                clickButton.disabled = false;
+                startButton.disabled = true;
+                clickButton.focus();
+
+                timer = setInterval(() => {
+                    const elapsedTime = (Date.now() - startTime) / 1000;
+                    const remainingTime = (totalTime - elapsedTime).toFixed(3);
+                    progress.textContent = `途中経過: ${clickCount} 回, 残り時間: ${remainingTime} 秒`;
+
+                    if (elapsedTime >= totalTime) {
+                        clearInterval(timer);
+                        clickButton.disabled = true;
+                        startButton.disabled = false;
+                        result.textContent = `結果: ${clickCount} 回`;
+                        const cps = (clickCount / totalTime).toFixed(3);
+                        cpsDisplay.textContent = `CPS: ${cps}`;
+                    }
+                }, 50); // 0.05秒ごとに更新
+            });
+
+            clickButton.addEventListener('click', () => {
+                clickCount++;
+                const elapsedTime = (Date.now() - startTime) / 1000;
+                const cps = (clickCount / elapsedTime).toFixed(3);
+                cpsDisplay.textContent = `CPS: ${cps}`;
+            });
+        });
+    </script>
+</body>
+</html>
